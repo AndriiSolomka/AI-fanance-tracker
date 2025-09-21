@@ -75,19 +75,3 @@
 
 Таким чином, кожен із нас буде брати участь у всіх частинах роботи. Це дозволяє розподілити навантаження та водночас забезпечити спільну участь обох у всіх аспектах проєкту.
 
----
-
-  ## ⚡ Запуск (локально)
-
-> Перед стартом скопіюйте `.env.example` у `.env` і заповніть змінні.
-
-```bash
-# Клонування
-git clone https://github.com/username/finance-tracker-ai.git
-cd finance-tracker-ai
-
-# Запуск з Docker Compose
-docker-compose up --build -d
-
-# Міграції (опціонально)
-docker-compose exec backend npm run typeorm:migrate
