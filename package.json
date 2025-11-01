@@ -71,11 +71,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "lint-staged": {
-    "*.{js,ts,tsx,json,css,md}": [
-      "prettier --write",
-      "eslint --fix"
-    ]
   }
 }
