@@ -1,0 +1,7 @@
+export enum BudgetStatus {
+  CREATED = 'CREATED',
+  ACTIVE = 'ACTIVE',
+  WARNING = 'WARNING',
+  EXCEEDED = 'EXCEEDED',
+  COMPLETED = 'COMPLETED',
+}
