@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Budget } from '../../domain/entities/budget.entity';
 import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
 import { BudgetStatus } from '../../domain/enums/budget-status.enum';
+import { budgetsMock } from '../../constants/budgets.mock';
 
 @Injectable()
 export class BudgetRepository {
@@ -9,67 +10,9 @@ export class BudgetRepository {
   private idCounter = 5;
 
   constructor() {
-    const budget1: Budget = {
-      id: '1',
-      userId: '1',
-      categoryId: '1',
-      limitAmount: 500.0,
-      limitCurrency: 'USD',
-      spentAmount: 345.99,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-    const budget2: Budget = {
-      id: '2',
-      userId: '1',
-      categoryId: '2',
-      limitAmount: 300.0,
-      limitCurrency: 'USD',
-      spentAmount: 120.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-    const budget3: Budget = {
-      id: '3',
-      userId: '1',
-      categoryId: '4',
-      limitAmount: 250.0,
-      limitCurrency: 'USD',
-      spentAmount: 200.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.WARNING,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-    const budget4: Budget = {
-      id: '4',
-      userId: '2',
-      categoryId: '3',
-      limitAmount: 200.0,
-      limitCurrency: 'USD',
-      spentAmount: 85.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-
-    this.budgets.set('1', budget1);
-    this.budgets.set('2', budget2);
-    this.budgets.set('3', budget3);
-    this.budgets.set('4', budget4);
+    budgetsMock.forEach(budget => {
+      this.budgets.set(budget.id, budget);
+    });
   }
 
   findAll(): Budget[] {
