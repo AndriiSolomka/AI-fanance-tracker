@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { User } from '../../domain/entities/user.entity';
 
@@ -14,7 +19,7 @@ export class AuthService {
   ): User {
     const existingUser = this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new Error('User with this email already exists');
+      throw new BadRequestException('User with this email already exists');
     }
 
     return this.userRepository.create({
@@ -43,7 +48,7 @@ export class AuthService {
   getUserById(id: string): User {
     const user = this.userRepository.findById(id);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
     return user;
   }

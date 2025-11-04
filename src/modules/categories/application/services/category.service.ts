@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CategoryRepository } from '../repositories/category.repository';
 import { Category } from '../../domain/entities/category.entity';
 import { CategoryType } from '../../domain/enums/category-type.enum';
@@ -14,7 +14,7 @@ export class CategoryService {
   getCategoryById(id: string): Category {
     const category = this.categoryRepository.findById(id);
     if (!category) {
-      throw new Error('Category not found');
+      throw new NotFoundException('Category not found');
     }
     return category;
   }
@@ -47,7 +47,7 @@ export class CategoryService {
   updateCategory(id: string, updateData: Partial<Category>): Category {
     const category = this.categoryRepository.update(id, updateData);
     if (!category) {
-      throw new Error('Category not found');
+      throw new NotFoundException('Category not found');
     }
     return category;
   }
@@ -55,7 +55,7 @@ export class CategoryService {
   deleteCategory(id: string): void {
     const deleted = this.categoryRepository.delete(id);
     if (!deleted) {
-      throw new Error('Category not found');
+      throw new NotFoundException('Category not found');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { TransactionRepository } from '../repositories/transaction.repository';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enums/transaction-type.enum';
@@ -14,7 +14,7 @@ export class TransactionService {
   getTransactionById(id: string): Transaction {
     const transaction = this.transactionRepository.findById(id);
     if (!transaction) {
-      throw new Error('Transaction not found');
+      throw new NotFoundException('Transaction not found');
     }
     return transaction;
   }
@@ -66,7 +66,7 @@ export class TransactionService {
   updateTransaction(id: string, updateData: Partial<Transaction>): Transaction {
     const transaction = this.transactionRepository.update(id, updateData);
     if (!transaction) {
-      throw new Error('Transaction not found');
+      throw new NotFoundException('Transaction not found');
     }
     return transaction;
   }
@@ -74,7 +74,7 @@ export class TransactionService {
   deleteTransaction(id: string): void {
     const deleted = this.transactionRepository.delete(id);
     if (!deleted) {
-      throw new Error('Transaction not found');
+      throw new NotFoundException('Transaction not found');
     }
   }
 

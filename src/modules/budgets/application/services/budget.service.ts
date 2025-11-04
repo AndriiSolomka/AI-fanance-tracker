@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BudgetRepository } from '../repositories/budget.repository';
 import { Budget } from '../../domain/entities/budget.entity';
 import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
@@ -15,7 +19,7 @@ export class BudgetService {
   getBudgetById(id: string): Budget {
     const budget = this.budgetRepository.findById(id);
     if (!budget) {
-      throw new Error('Budget not found');
+      throw new NotFoundException('Budget not found');
     }
     return budget;
   }
@@ -59,7 +63,7 @@ export class BudgetService {
   updateBudget(id: string, updateData: Partial<Budget>): Budget {
     const budget = this.budgetRepository.update(id, updateData);
     if (!budget) {
-      throw new Error('Budget not found');
+      throw new NotFoundException('Budget not found');
     }
     return budget;
   }
@@ -67,7 +71,7 @@ export class BudgetService {
   deleteBudget(id: string): void {
     const deleted = this.budgetRepository.delete(id);
     if (!deleted) {
-      throw new Error('Budget not found');
+      throw new NotFoundException('Budget not found');
     }
   }
 
@@ -102,7 +106,7 @@ export class BudgetService {
     );
 
     if (!updatedBudget) {
-      throw new Error('Failed to update budget');
+      throw new BadRequestException('Failed to update budget');
     }
 
     const usagePercentage =
@@ -149,7 +153,7 @@ export class BudgetService {
   } {
     const budget = this.budgetRepository.findById(budgetId);
     if (!budget) {
-      throw new Error('Budget not found');
+      throw new NotFoundException('Budget not found');
     }
 
     const usagePercentage =
