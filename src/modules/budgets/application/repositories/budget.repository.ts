@@ -93,12 +93,12 @@ export class BudgetRepository {
   }
 
   findActiveByCategory(userId: string, categoryId: string): Budget | undefined {
-    return Array.from(this.budgets.values()).find(
-      (budget) =>
-        budget.userId === userId &&
-        budget.categoryId === categoryId &&
-        budget.status === BudgetStatus.ACTIVE,
-    );
+    return Array.from(this.budgets.values()).find((budget) => {
+      const { userId: uid, categoryId: cid, status } = budget;
+      return (
+        uid === userId && cid === categoryId && status === BudgetStatus.ACTIVE
+      );
+    });
   }
 
   findByStatus(userId: string, status: BudgetStatus): Budget[] {

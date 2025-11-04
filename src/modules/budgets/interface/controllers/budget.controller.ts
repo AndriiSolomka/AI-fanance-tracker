@@ -51,15 +51,26 @@ export class BudgetController {
 
   @Post()
   createBudget(@Body() dto: CreateBudgetDto) {
+    const {
+      userId,
+      categoryId,
+      limitAmount,
+      limitCurrency,
+      period,
+      startDate,
+      endDate,
+      alertThreshold,
+    } = dto;
+
     return this.budgetService.createBudget(
-      dto.userId,
-      dto.categoryId,
-      dto.limitAmount,
-      dto.limitCurrency,
-      dto.period,
-      new Date(dto.startDate),
-      new Date(dto.endDate),
-      dto.alertThreshold,
+      userId,
+      categoryId,
+      limitAmount,
+      limitCurrency,
+      period,
+      new Date(startDate),
+      new Date(endDate),
+      alertThreshold,
     );
   }
 
@@ -83,10 +94,7 @@ export class BudgetController {
   checkBudget(
     @Body() dto: { userId: string; categoryId: string; amount: number },
   ) {
-    return this.budgetService.checkBudget(
-      dto.userId,
-      dto.categoryId,
-      dto.amount,
-    );
+    const { userId, categoryId, amount } = dto;
+    return this.budgetService.checkBudget(userId, categoryId, amount);
   }
 }
