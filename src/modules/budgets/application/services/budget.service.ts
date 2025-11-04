@@ -105,16 +105,13 @@ export class BudgetService {
       throw new Error('Failed to update budget');
     }
 
-    // Calculate usage percentage
     const usagePercentage =
       updatedBudget.limitAmount === 0
         ? 0
         : (updatedBudget.spentAmount / updatedBudget.limitAmount) * 100;
 
-    // Check if exceeded
     const exceeded = updatedBudget.spentAmount > updatedBudget.limitAmount;
 
-    // Check if should alert
     const alert = usagePercentage >= updatedBudget.alertThreshold;
 
     let newStatus = budget.status;

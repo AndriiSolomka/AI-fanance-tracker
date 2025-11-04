@@ -9,7 +9,6 @@ export class BudgetRepository {
   private idCounter = 5;
 
   constructor() {
-    // Initial data
     const budget1: Budget = {
       id: '1',
       userId: '1',

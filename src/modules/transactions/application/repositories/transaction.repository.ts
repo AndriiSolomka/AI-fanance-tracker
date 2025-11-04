@@ -4,7 +4,6 @@ import { TransactionType } from '../../domain/enums/transaction-type.enum';
 
 @Injectable()
 export class TransactionRepository {
-  // Статические данные для прототипа
   private transactions: Transaction[] = [
     {
       id: '1',

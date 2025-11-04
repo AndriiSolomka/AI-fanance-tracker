@@ -8,7 +8,6 @@ export class CategoryRepository {
   private idCounter = 7;
 
   constructor() {
-    // Initial default categories
     const cat1: Category = {
       id: '1',
       userId: 'default',

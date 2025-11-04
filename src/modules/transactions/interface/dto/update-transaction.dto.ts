@@ -6,5 +6,5 @@ export class UpdateTransactionDto {
   amount?: number;
   currency?: string;
   description?: string;
-  date?: string; // ISO date string
+  date?: string; 
 }

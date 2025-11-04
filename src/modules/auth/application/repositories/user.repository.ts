@@ -8,7 +8,6 @@ export class UserRepository {
   private idCounter = 3;
 
   constructor() {
-    // Initial data
     const user1: User = {
       id: '1',
       email: 'john@example.com',
