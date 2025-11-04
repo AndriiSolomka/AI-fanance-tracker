@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Category } from '../../domain/entities/category.entity';
 import { CategoryType } from '../../domain/enums/category-type.enum';
 import { categoriesMock } from '../../constants/categories.mock';
+import { CreateCategoryInput } from '../../domain/types/create-category-input';
 
 @Injectable()
 export class CategoryRepository {
@@ -9,7 +10,7 @@ export class CategoryRepository {
   private idCounter = 7;
 
   constructor() {
-    categoriesMock.forEach(cat => {
+    categoriesMock.forEach((cat) => {
       this.categories.set(cat.id, cat);
     });
   }
@@ -34,14 +35,7 @@ export class CategoryRepository {
     );
   }
 
-  create(categoryData: {
-    userId: string;
-    name: string;
-    type: CategoryType;
-    color: string;
-    icon: string;
-    isDefault: boolean;
-  }): Category {
+  create(categoryData: CreateCategoryInput): Category {
     const id = (this.idCounter++).toString();
     const newCategory: Category = {
       ...categoryData,

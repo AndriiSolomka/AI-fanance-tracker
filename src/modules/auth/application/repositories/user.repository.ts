@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
 import { usersMock } from '../../constants/users.mock';
+import { CreateUserInput } from '../../domain/entities/types/create-user-input.type';
 
 @Injectable()
 export class UserRepository {
@@ -29,13 +30,7 @@ export class UserRepository {
     return this.users.get(userId);
   }
 
-  create(userData: {
-    email: string;
-    passwordHash: string;
-    firstName: string;
-    lastName: string;
-    isEmailVerified: boolean;
-  }): User {
+  create(userData: CreateUserInput): User {
     const id = (this.idCounter++).toString();
     const newUser: User = {
       ...userData,

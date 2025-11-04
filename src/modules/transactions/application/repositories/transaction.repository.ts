@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enums/transaction-type.enum';
 import { TRANSACTIONS_MOCK } from '../../constants/transactions.mock';
+import { CreateTransactionInput } from '../../domain/types/transaction.types';
 
 @Injectable()
 export class TransactionRepository {
@@ -40,15 +41,7 @@ export class TransactionRepository {
     );
   }
 
-  create(txData: {
-    userId: string;
-    categoryId: string;
-    type: TransactionType;
-    amount: number;
-    currency: string;
-    description: string;
-    date: Date;
-  }): Transaction {
+  create(txData: CreateTransactionInput): Transaction {
     const newTransaction: Transaction = {
       ...txData,
       id: (this.transactions.length + 1).toString(),

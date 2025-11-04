@@ -6,7 +6,7 @@ export class CreateBudgetDto {
   limitAmount: number;
   limitCurrency: string;
   period: BudgetPeriod;
-  startDate: string; 
-  endDate: string; 
-  alertThreshold?: number; 
+  startDate: string;
+  endDate: string;
+  alertThreshold?: number;
 }

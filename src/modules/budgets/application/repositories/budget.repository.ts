@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Budget } from '../../domain/entities/budget.entity';
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
 import { BudgetStatus } from '../../domain/enums/budget-status.enum';
 import { budgetsMock } from '../../constants/budgets.mock';
+import { CreateBudgetInput } from '../../domain/types/budget.types';
 
 @Injectable()
 export class BudgetRepository {
@@ -10,7 +10,7 @@ export class BudgetRepository {
   private idCounter = 5;
 
   constructor() {
-    budgetsMock.forEach(budget => {
+    budgetsMock.forEach((budget) => {
       this.budgets.set(budget.id, budget);
     });
   }
@@ -50,18 +50,7 @@ export class BudgetRepository {
     );
   }
 
-  create(budgetData: {
-    userId: string;
-    categoryId: string;
-    limitAmount: number;
-    limitCurrency: string;
-    spentAmount: number;
-    period: BudgetPeriod;
-    status: BudgetStatus;
-    startDate: Date;
-    endDate: Date;
-    alertThreshold: number;
-  }): Budget {
+  create(budgetData: CreateBudgetInput): Budget {
     const id = (this.idCounter++).toString();
     const newBudget: Budget = {
       ...budgetData,
