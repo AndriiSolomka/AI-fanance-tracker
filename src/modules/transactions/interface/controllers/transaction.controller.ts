@@ -55,14 +55,17 @@ export class TransactionController {
 
   @Post()
   createTransaction(@Body() dto: CreateTransactionDto) {
+    const { userId, categoryId, type, amount, currency, description, date } =
+      dto;
+
     return this.transactionService.createTransaction(
-      dto.userId,
-      dto.categoryId,
-      dto.type,
-      dto.amount,
-      dto.currency,
-      dto.description,
-      new Date(dto.date),
+      userId,
+      categoryId,
+      type,
+      amount,
+      currency,
+      description,
+      new Date(date),
     );
   }
 

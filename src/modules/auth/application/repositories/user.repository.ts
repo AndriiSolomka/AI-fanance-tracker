@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
+import { usersMock } from '../../constants/users.mock';
+import { CreateUserInput } from '../../domain/entities/types/create-user-input.type';
 
 @Injectable()
 export class UserRepository {
@@ -8,32 +10,10 @@ export class UserRepository {
   private idCounter = 3;
 
   constructor() {
-    // Initial data
-    const user1: User = {
-      id: '1',
-      email: 'john@example.com',
-      passwordHash: 'hashed_password_123',
-      firstName: 'John',
-      lastName: 'Doe',
-      isEmailVerified: true,
-      createdAt: new Date('2024-01-01'),
-      updatedAt: new Date('2024-01-01'),
-    };
-    const user2: User = {
-      id: '2',
-      email: 'jane@example.com',
-      passwordHash: 'hashed_password_456',
-      firstName: 'Jane',
-      lastName: 'Smith',
-      isEmailVerified: true,
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15'),
-    };
-
-    this.users.set('1', user1);
-    this.users.set('2', user2);
-    this.emailIndex.set('john@example.com', '1');
-    this.emailIndex.set('jane@example.com', '2');
+    usersMock.forEach((user) => {
+      this.users.set(user.id, user);
+      this.emailIndex.set(user.email, user.id);
+    });
   }
 
   findAll(): User[] {
@@ -50,13 +30,7 @@ export class UserRepository {
     return this.users.get(userId);
   }
 
-  create(userData: {
-    email: string;
-    passwordHash: string;
-    firstName: string;
-    lastName: string;
-    isEmailVerified: boolean;
-  }): User {
+  create(userData: CreateUserInput): User {
     const id = (this.idCounter++).toString();
     const newUser: User = {
       ...userData,

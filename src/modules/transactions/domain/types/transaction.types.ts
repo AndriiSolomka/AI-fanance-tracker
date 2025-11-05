@@ -1,11 +1,11 @@
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { TransactionType } from '../enums/transaction-type.enum';
 
-export class CreateTransactionDto {
+export interface CreateTransactionInput {
   userId: string;
   categoryId: string;
   type: TransactionType;
   amount: number;
   currency: string;
   description: string;
-  date: string; 
+  date: Date;
 }
