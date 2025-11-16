@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: finance_tracker_postgres
+    environment:
+      POSTGRES_DB: finance_tracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - finance_tracker_network
+
+  app:
+    build: .
+    container_name: finance_tracker_app
+    environment:
+      DATABASE_URL: 'postgresql://postgres:postgres123@postgres:5432/finance_tracker?schema=public'
+      NODE_ENV: production
+    ports:
+      - '3000:3000'
+    depends_on:
+      - postgres
+    networks:
+      - finance_tracker_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  finance_tracker_network:
+    driver: bridge

@@ -7,5 +7,5 @@ export class CreateTransactionDto {
   amount: number;
   currency: string;
   description: string;
-  date: string; 
+  date: string; // ISO date string
 }

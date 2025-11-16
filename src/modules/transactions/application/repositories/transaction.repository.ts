@@ -1,74 +1,221 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../database/prisma.service';
 import { Transaction } from '../../domain/entities/transaction.entity';
 import { TransactionType } from '../../domain/enums/transaction-type.enum';
-import { TRANSACTIONS_MOCK } from '../../constants/transactions.mock';
-import { CreateTransactionInput } from '../../domain/types/transaction.types';
 
 @Injectable()
 export class TransactionRepository {
-  private transactions = [...TRANSACTIONS_MOCK];
+  constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): Transaction[] {
-    return this.transactions;
+  async findAll(): Promise<Transaction[]> {
+    const transactions = await this.prisma.transaction.findMany();
+    return transactions.map((tx) => ({
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    }));
   }
 
-  findById(id: string): Transaction | undefined {
-    return this.transactions.find((tx) => tx.id === id);
+  async findById(id: string): Promise<Transaction | null> {
+    const tx = await this.prisma.transaction.findUnique({
+      where: { id },
+    });
+
+    if (!tx) return null;
+
+    return {
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    };
   }
 
-  findByUserId(userId: string): Transaction[] {
-    return this.transactions.filter((tx) => tx.userId === userId);
+  async findByUserId(userId: string): Promise<Transaction[]> {
+    const transactions = await this.prisma.transaction.findMany({
+      where: { userId },
+    });
+
+    return transactions.map((tx) => ({
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    }));
   }
 
-  findByCategoryId(categoryId: string): Transaction[] {
-    return this.transactions.filter((tx) => tx.categoryId === categoryId);
+  async findByCategoryId(categoryId: string): Promise<Transaction[]> {
+    const transactions = await this.prisma.transaction.findMany({
+      where: { categoryId },
+    });
+
+    return transactions.map((tx) => ({
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    }));
   }
 
-  findByDateRange(
+  async findByDateRange(
     userId: string,
     startDate: Date,
     endDate: Date,
-  ): Transaction[] {
-    return this.transactions.filter(
-      (tx) =>
-        tx.userId === userId && tx.date >= startDate && tx.date <= endDate,
-    );
+  ): Promise<Transaction[]> {
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        userId,
+        date: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+    });
+
+    return transactions.map((tx) => ({
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    }));
   }
 
-  findByType(userId: string, type: TransactionType): Transaction[] {
-    return this.transactions.filter(
-      (tx) => tx.userId === userId && tx.type === type,
-    );
+  async findByType(
+    userId: string,
+    type: TransactionType,
+  ): Promise<Transaction[]> {
+    const transactions = await this.prisma.transaction.findMany({
+      where: {
+        userId,
+        type,
+      },
+    });
+
+    return transactions.map((tx) => ({
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
+    }));
   }
 
-  create(txData: CreateTransactionInput): Transaction {
-    const newTransaction: Transaction = {
-      ...txData,
-      id: (this.transactions.length + 1).toString(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
+  async create(txData: {
+    userId: string;
+    categoryId: string;
+    type: TransactionType;
+    amount: number;
+    currency?: string;
+    description?: string;
+    date: Date;
+  }): Promise<Transaction> {
+    const tx = await this.prisma.transaction.create({
+      data: {
+        userId: txData.userId,
+        categoryId: txData.categoryId,
+        type: txData.type,
+        amount: txData.amount,
+        currency: txData.currency || 'USD',
+        description: txData.description,
+        date: txData.date,
+      },
+    });
+
+    return {
+      id: tx.id,
+      userId: tx.userId,
+      categoryId: tx.categoryId,
+      type: tx.type as TransactionType,
+      amount: Number(tx.amount),
+      currency: tx.currency,
+      description: tx.description || '',
+      date: tx.date,
+      createdAt: tx.createdAt,
+      updatedAt: tx.updatedAt,
     };
-    this.transactions.push(newTransaction);
-    return newTransaction;
   }
 
-  update(id: string, txData: Partial<Transaction>): Transaction | undefined {
-    const txIndex = this.transactions.findIndex((tx) => tx.id === id);
-    if (txIndex === -1) return undefined;
+  async update(
+    id: string,
+    txData: Partial<Transaction>,
+  ): Promise<Transaction | null> {
+    try {
+      const tx = await this.prisma.transaction.update({
+        where: { id },
+        data: {
+          ...(txData.categoryId && { categoryId: txData.categoryId }),
+          ...(txData.type && { type: txData.type }),
+          ...(txData.amount && { amount: txData.amount }),
+          ...(txData.currency && { currency: txData.currency }),
+          ...(txData.description !== undefined && {
+            description: txData.description,
+          }),
+          ...(txData.date && { date: txData.date }),
+          updatedAt: new Date(),
+        },
+      });
 
-    this.transactions[txIndex] = {
-      ...this.transactions[txIndex],
-      ...txData,
-      updatedAt: new Date(),
-    };
-    return this.transactions[txIndex];
+      return {
+        id: tx.id,
+        userId: tx.userId,
+        categoryId: tx.categoryId,
+        type: tx.type as TransactionType,
+        amount: Number(tx.amount),
+        currency: tx.currency,
+        description: tx.description || '',
+        date: tx.date,
+        createdAt: tx.createdAt,
+        updatedAt: tx.updatedAt,
+      };
+    } catch {
+      return null;
+    }
   }
 
-  delete(id: string): boolean {
-    const txIndex = this.transactions.findIndex((tx) => tx.id === id);
-    if (txIndex === -1) return false;
-
-    this.transactions.splice(txIndex, 1);
-    return true;
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.transaction.delete({
+        where: { id },
+      });
+      return true;
+    } catch {
+      return false;
+    }
   }
 }

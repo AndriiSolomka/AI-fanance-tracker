@@ -1,64 +1,140 @@
 import { Injectable } from '@nestjs/common';
-import { Category } from '../../domain/entities/category.entity';
+import { PrismaService } from '../../../database/prisma.service';
 import { CategoryType } from '../../domain/enums/category-type.enum';
-import { categoriesMock } from '../../constants/categories.mock';
-import { CreateCategoryInput } from '../../domain/types/create-category-input';
+import { Category } from '@prisma/client';
 
 @Injectable()
 export class CategoryRepository {
-  private categories = new Map<string, Category>();
-  private idCounter = 7;
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor() {
-    categoriesMock.forEach((cat) => {
-      this.categories.set(cat.id, cat);
+  async findAll(): Promise<Category[]> {
+    const categories = await this.prisma.category.findMany();
+    return categories.map((cat) => ({
+      id: cat.id,
+      userId: cat.userId,
+      name: cat.name,
+      type: cat.type as CategoryType,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.isDefault,
+      createdAt: cat.createdAt,
+    }));
+  }
+
+  async findById(id: string): Promise<Category | null> {
+    return await this.prisma.category.findUnique({
+      where: { id },
     });
   }
 
-  findAll(): Category[] {
-    return Array.from(this.categories.values());
+  async findByUserId(userId: string): Promise<Category[]> {
+    const categories = await this.prisma.category.findMany({
+      where: {
+        OR: [{ userId }, { isDefault: true }],
+      },
+    });
+
+    return categories.map((cat) => ({
+      id: cat.id,
+      userId: cat.userId,
+      name: cat.name,
+      type: cat.type as CategoryType,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.isDefault,
+      createdAt: cat.createdAt,
+    }));
   }
 
-  findById(id: string): Category | undefined {
-    return this.categories.get(id);
+  async findByType(type: CategoryType): Promise<Category[]> {
+    const categories = await this.prisma.category.findMany({
+      where: { type: type as any },
+    });
+
+    return categories.map((cat) => ({
+      id: cat.id,
+      userId: cat.userId,
+      name: cat.name,
+      type: cat.type as CategoryType,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.isDefault,
+      createdAt: cat.createdAt,
+    }));
   }
 
-  findByUserId(userId: string): Category[] {
-    return Array.from(this.categories.values()).filter(
-      (cat) => cat.isDefault || cat.userId === userId,
-    );
-  }
+  async create(categoryData: {
+    userId: string;
+    name: string;
+    type: CategoryType;
+    color: string;
+    icon: string;
+    isDefault?: boolean;
+  }): Promise<Category> {
+    const cat = await this.prisma.category.create({
+      data: {
+        userId: categoryData.userId,
+        name: categoryData.name,
+        type: categoryData.type as any,
+        color: categoryData.color,
+        icon: categoryData.icon,
+        isDefault: categoryData.isDefault ?? false,
+      },
+    });
 
-  findByType(type: CategoryType): Category[] {
-    return Array.from(this.categories.values()).filter(
-      (cat) => cat.type === type,
-    );
-  }
-
-  create(categoryData: CreateCategoryInput): Category {
-    const id = (this.idCounter++).toString();
-    const newCategory: Category = {
-      ...categoryData,
-      id,
-      createdAt: new Date(),
+    return {
+      id: cat.id,
+      userId: cat.userId,
+      name: cat.name,
+      type: cat.type as CategoryType,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.isDefault,
+      createdAt: cat.createdAt,
     };
-    this.categories.set(id, newCategory);
-    return newCategory;
   }
 
-  update(id: string, categoryData: Partial<Category>): Category | undefined {
-    const category = this.categories.get(id);
-    if (!category) return undefined;
+  async update(
+    id: string,
+    categoryData: Partial<Category>,
+  ): Promise<Category | null> {
+    try {
+      const cat = await this.prisma.category.update({
+        where: { id },
+        data: {
+          ...(categoryData.name && { name: categoryData.name }),
+          ...(categoryData.type && { type: categoryData.type as any }),
+          ...(categoryData.color && { color: categoryData.color }),
+          ...(categoryData.icon && { icon: categoryData.icon }),
+          ...(categoryData.isDefault !== undefined && {
+            isDefault: categoryData.isDefault,
+          }),
+        },
+      });
 
-    const updatedCategory = {
-      ...category,
-      ...categoryData,
-    };
-    this.categories.set(id, updatedCategory);
-    return updatedCategory;
+      return {
+        id: cat.id,
+        userId: cat.userId,
+        name: cat.name,
+        type: cat.type as CategoryType,
+        color: cat.color,
+        icon: cat.icon,
+        isDefault: cat.isDefault,
+        createdAt: cat.createdAt,
+      };
+    } catch (error) {
+      return null;
+    }
   }
 
-  delete(id: string): boolean {
-    return this.categories.delete(id);
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.category.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

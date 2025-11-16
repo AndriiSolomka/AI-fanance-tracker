@@ -38,9 +38,13 @@ export class CategoryController {
 
   @Post()
   createCategory(@Body() dto: CreateCategoryDto) {
-    const { userId, name, type, color, icon } = dto;
-
-    return this.categoryService.createCategory(userId, name, type, color, icon);
+    return this.categoryService.createCategory(
+      dto.userId,
+      dto.name,
+      dto.type,
+      dto.color,
+      dto.icon,
+    );
   }
 
   @Put(':id')

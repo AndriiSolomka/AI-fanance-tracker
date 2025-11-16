@@ -8,9 +8,10 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3005;
   await app.listen(port);
 }
+
 bootstrap().catch((err) => {
   console.error('Error during application bootstrap:', err);
   process.exit(1);

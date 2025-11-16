@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from '../repositories/user.repository';
 import { User } from '../../domain/entities/user.entity';
 
@@ -11,15 +6,15 @@ import { User } from '../../domain/entities/user.entity';
 export class AuthService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  register(
+  async register(
     email: string,
     password: string,
     firstName: string,
     lastName: string,
-  ): User {
-    const existingUser = this.userRepository.findByEmail(email);
+  ): Promise<User> {
+    const existingUser = await this.userRepository.findByEmail(email);
     if (existingUser) {
-      throw new BadRequestException('User with this email already exists');
+      throw new Error('User with this email already exists');
     }
 
     return this.userRepository.create({
@@ -31,8 +26,8 @@ export class AuthService {
     });
   }
 
-  login(email: string, password: string): User {
-    const user = this.userRepository.findByEmail(email);
+  async login(email: string, password: string): Promise<User> {
+    const user = await this.userRepository.findByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
@@ -45,15 +40,15 @@ export class AuthService {
     return user;
   }
 
-  getUserById(id: string): User {
-    const user = this.userRepository.findById(id);
+  async getUserById(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new Error('User not found');
     }
     return user;
   }
 
-  getAllUsers(): User[] {
+  async getAllUsers(): Promise<User[]> {
     return this.userRepository.findAll();
   }
 }

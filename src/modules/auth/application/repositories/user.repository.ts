@@ -1,73 +1,131 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../database/prisma.service';
 import { User } from '../../domain/entities/user.entity';
-import { usersMock } from '../../constants/users.mock';
-import { CreateUserInput } from '../../domain/entities/types/create-user-input.type';
 
 @Injectable()
 export class UserRepository {
-  private users = new Map<string, User>();
-  private emailIndex = new Map<string, string>();
-  private idCounter = 3;
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor() {
-    usersMock.forEach((user) => {
-      this.users.set(user.id, user);
-      this.emailIndex.set(user.email, user.id);
+  async findAll(): Promise<User[]> {
+    const users = await this.prisma.user.findMany();
+    return users.map((user) => ({
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+  }
+
+  async findById(id: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
     });
-  }
 
-  findAll(): User[] {
-    return Array.from(this.users.values());
-  }
+    if (!user) return null;
 
-  findById(id: string): User | undefined {
-    return this.users.get(id);
-  }
-
-  findByEmail(email: string): User | undefined {
-    const userId = this.emailIndex.get(email);
-    if (!userId) return undefined;
-    return this.users.get(userId);
-  }
-
-  create(userData: CreateUserInput): User {
-    const id = (this.idCounter++).toString();
-    const newUser: User = {
-      ...userData,
-      id,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
-    this.users.set(id, newUser);
-    this.emailIndex.set(userData.email, id);
-    return newUser;
   }
 
-  update(id: string, userData: Partial<User>): User | undefined {
-    const user = this.users.get(id);
-    if (!user) return undefined;
+  async findByEmail(email: string): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
 
-    const updatedUser = {
-      ...user,
-      ...userData,
-      updatedAt: new Date(),
+    if (!user) return null;
+
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     };
-    this.users.set(id, updatedUser);
+  }
 
-    if (userData.email && userData.email !== user.email) {
-      this.emailIndex.delete(user.email);
-      this.emailIndex.set(userData.email, id);
+  async create(userData: {
+    email: string;
+    passwordHash: string;
+    firstName: string;
+    lastName: string;
+    isEmailVerified?: boolean;
+  }): Promise<User> {
+    const user = await this.prisma.user.create({
+      data: {
+        email: userData.email,
+        passwordHash: userData.passwordHash,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        isEmailVerified: userData.isEmailVerified ?? false,
+      },
+    });
+
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async update(id: string, userData: Partial<User>): Promise<User | null> {
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: {
+          ...(userData.email && { email: userData.email }),
+          ...(userData.passwordHash && { passwordHash: userData.passwordHash }),
+          ...(userData.firstName && { firstName: userData.firstName }),
+          ...(userData.lastName && { lastName: userData.lastName }),
+          ...(userData.isEmailVerified !== undefined && {
+            isEmailVerified: userData.isEmailVerified,
+          }),
+          updatedAt: new Date(),
+        },
+      });
+
+      return {
+        id: user.id,
+        email: user.email,
+        passwordHash: user.passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isEmailVerified: user.isEmailVerified,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+    } catch (error) {
+      return null;
     }
-
-    return updatedUser;
   }
 
-  delete(id: string): boolean {
-    const user = this.users.get(id);
-    if (!user) return false;
-
-    this.emailIndex.delete(user.email);
-    this.users.delete(id);
-    return true;
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.user.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

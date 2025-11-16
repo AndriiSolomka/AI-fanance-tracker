@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+enum CategoryType {
+  FOOD
+  TRANSPORT
+  ENTERTAINMENT
+  UTILITIES
+  SHOPPING
+  EDUCATION
+  HEALTH
+  SALARY
+  INVESTMENT
+  OTHER
+}
+
+enum BudgetPeriod {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum BudgetStatus {
+  CREATED
+  ACTIVE
+  WARNING
+  EXCEEDED
+  COMPLETED
+}
+
+// Models
+model User {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  passwordHash     String
+  firstName        String
+  lastName         String
+  isEmailVerified  Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // Relations
+  sessions      Session[]
+  categories    Category[]
+  transactions  Transaction[]
+  budgets       Budget[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String
+  name      String
+  type      CategoryType
+  color     String
+  icon      String
+  isDefault Boolean      @default(false)
+  createdAt DateTime     @default(now())
+
+  // Relations
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@map("categories")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String
+  categoryId  String
+  type        TransactionType
+  amount      Decimal         @db.Decimal(10, 2)
+  currency    String          @default("USD")
+  description String?
+  date        DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
+
+model Budget {
+  id             String       @id @default(cuid())
+  userId         String
+  categoryId     String
+  limitAmount    Decimal      @db.Decimal(10, 2)
+  limitCurrency  String       @default("USD")
+  spentAmount    Decimal      @default(0) @db.Decimal(10, 2)
+  period         BudgetPeriod
+  status         BudgetStatus @default(CREATED)
+  startDate      DateTime
+  endDate        DateTime
+  alertThreshold Decimal      @default(0.8) @db.Decimal(3, 2)
+  createdAt      DateTime     @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("budgets")
+}

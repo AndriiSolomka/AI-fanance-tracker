@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { AuthModule } from './modules/auth/auth.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
