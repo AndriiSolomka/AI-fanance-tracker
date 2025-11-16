@@ -1,39 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryRepository } from '../repositories/category.repository';
-import { Category } from '../../domain/entities/category.entity';
 import { CategoryType } from '../../domain/enums/category-type.enum';
+import { Category } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  getAllCategories(): Category[] {
+  async getAllCategories(): Promise<Category[]> {
     return this.categoryRepository.findAll();
   }
 
-  getCategoryById(id: string): Category {
-    const category = this.categoryRepository.findById(id);
+  async getCategoryById(id: string): Promise<Category> {
+    const category = await this.categoryRepository.findById(id);
+
     if (!category) {
       throw new Error('Category not found');
     }
+
     return category;
   }
 
-  getCategoriesByUserId(userId: string): Category[] {
+  async getCategoriesByUserId(userId: string): Promise<Category[]> {
     return this.categoryRepository.findByUserId(userId);
   }
 
-  getCategoriesByType(type: CategoryType): Category[] {
+  async getCategoriesByType(type: CategoryType): Promise<Category[]> {
     return this.categoryRepository.findByType(type);
   }
 
-  createCategory(
+  async createCategory(
     userId: string,
     name: string,
     type: CategoryType,
     color: string,
     icon: string,
-  ): Category {
+  ): Promise<Category> {
     return this.categoryRepository.create({
       userId,
       name,
@@ -44,16 +46,22 @@ export class CategoryService {
     });
   }
 
-  updateCategory(id: string, updateData: Partial<Category>): Category {
-    const category = this.categoryRepository.update(id, updateData);
+  async updateCategory(
+    id: string,
+    updateData: Partial<Category>,
+  ): Promise<Category> {
+    const category = await this.categoryRepository.update(id, updateData);
+
     if (!category) {
       throw new Error('Category not found');
     }
+
     return category;
   }
 
-  deleteCategory(id: string): void {
-    const deleted = this.categoryRepository.delete(id);
+  async deleteCategory(id: string): Promise<void> {
+    const deleted = await this.categoryRepository.delete(id);
+
     if (!deleted) {
       throw new Error('Category not found');
     }
