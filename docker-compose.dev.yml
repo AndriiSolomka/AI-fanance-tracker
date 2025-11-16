@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: finance_tracker_postgres_dev
+    environment:
+      POSTGRES_DB: finance_tracker_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    networks:
+      - finance_tracker_dev_network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: finance_tracker_redis_dev
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - finance_tracker_dev_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data_dev:
+  redis_data_dev:
+
+networks:
+  finance_tracker_dev_network:
+    driver: bridge
