@@ -8,7 +8,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  register(@Body() registerDto: RegisterDto) {
+  async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(
       registerDto.email,
       registerDto.password,
@@ -18,17 +18,17 @@ export class AuthController {
   }
 
   @Post('login')
-  login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto.email, loginDto.password);
   }
 
   @Get('users')
-  getAllUsers() {
+  async getAllUsers() {
     return this.authService.getAllUsers();
   }
 
   @Get('users/:id')
-  getUserById(@Param('id') id: string) {
+  async getUserById(@Param('id') id: string) {
     return this.authService.getUserById(id);
   }
 }
