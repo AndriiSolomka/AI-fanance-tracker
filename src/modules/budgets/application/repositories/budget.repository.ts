@@ -1,152 +1,252 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../database/prisma.service';
 import { Budget } from '../../domain/entities/budget.entity';
 import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
 import { BudgetStatus } from '../../domain/enums/budget-status.enum';
 
 @Injectable()
 export class BudgetRepository {
-  private budgets = new Map<string, Budget>();
-  private idCounter = 5;
+  constructor(private readonly prisma: PrismaService) {}
 
-  constructor() {
-    // Initial data
-    const budget1: Budget = {
-      id: '1',
-      userId: '1',
-      categoryId: '1',
-      limitAmount: 500.0,
-      limitCurrency: 'USD',
-      spentAmount: 345.99,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
+  async findAll(): Promise<Budget[]> {
+    const budgets = await this.prisma.budget.findMany();
+    return budgets.map((budget) => ({
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
+    }));
+  }
+
+  async findById(id: string): Promise<Budget | null> {
+    const budget = await this.prisma.budget.findUnique({
+      where: { id },
+    });
+
+    if (!budget) return null;
+
+    return {
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
     };
-    const budget2: Budget = {
-      id: '2',
-      userId: '1',
-      categoryId: '2',
-      limitAmount: 300.0,
-      limitCurrency: 'USD',
-      spentAmount: 120.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
+  }
+
+  async findByUserId(userId: string): Promise<Budget[]> {
+    const budgets = await this.prisma.budget.findMany({
+      where: { userId },
+    });
+
+    return budgets.map((budget) => ({
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
+    }));
+  }
+
+  async findByCategoryId(categoryId: string): Promise<Budget[]> {
+    const budgets = await this.prisma.budget.findMany({
+      where: { categoryId },
+    });
+
+    return budgets.map((budget) => ({
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
+    }));
+  }
+
+  async findActiveByCategory(
+    userId: string,
+    categoryId: string,
+  ): Promise<Budget | null> {
+    const budget = await this.prisma.budget.findFirst({
+      where: {
+        userId,
+        categoryId,
+        status: BudgetStatus.ACTIVE as any,
+      },
+    });
+
+    if (!budget) return null;
+
+    return {
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
     };
-    const budget3: Budget = {
-      id: '3',
-      userId: '1',
-      categoryId: '4',
-      limitAmount: 250.0,
-      limitCurrency: 'USD',
-      spentAmount: 200.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.WARNING,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-    const budget4: Budget = {
-      id: '4',
-      userId: '2',
-      categoryId: '3',
-      limitAmount: 200.0,
-      limitCurrency: 'USD',
-      spentAmount: 85.0,
-      period: BudgetPeriod.MONTHLY,
-      status: BudgetStatus.ACTIVE,
-      startDate: new Date('2024-10-01'),
-      endDate: new Date('2024-10-31'),
-      alertThreshold: 80,
-      createdAt: new Date('2024-09-25'),
-    };
-
-    this.budgets.set('1', budget1);
-    this.budgets.set('2', budget2);
-    this.budgets.set('3', budget3);
-    this.budgets.set('4', budget4);
   }
 
-  findAll(): Budget[] {
-    return Array.from(this.budgets.values());
+  async findByStatus(userId: string, status: BudgetStatus): Promise<Budget[]> {
+    const budgets = await this.prisma.budget.findMany({
+      where: {
+        userId,
+        status: status as any,
+      },
+    });
+
+    return budgets.map((budget) => ({
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
+    }));
   }
 
-  findById(id: string): Budget | undefined {
-    return this.budgets.get(id);
-  }
-
-  findByUserId(userId: string): Budget[] {
-    return Array.from(this.budgets.values()).filter(
-      (budget) => budget.userId === userId,
-    );
-  }
-
-  findByCategoryId(categoryId: string): Budget[] {
-    return Array.from(this.budgets.values()).filter(
-      (budget) => budget.categoryId === categoryId,
-    );
-  }
-
-  findActiveByCategory(userId: string, categoryId: string): Budget | undefined {
-    return Array.from(this.budgets.values()).find(
-      (budget) =>
-        budget.userId === userId &&
-        budget.categoryId === categoryId &&
-        budget.status === BudgetStatus.ACTIVE,
-    );
-  }
-
-  findByStatus(userId: string, status: BudgetStatus): Budget[] {
-    return Array.from(this.budgets.values()).filter(
-      (budget) => budget.userId === userId && budget.status === status,
-    );
-  }
-
-  create(budgetData: {
+  async create(budgetData: {
     userId: string;
     categoryId: string;
     limitAmount: number;
-    limitCurrency: string;
-    spentAmount: number;
+    limitCurrency?: string;
+    spentAmount?: number;
     period: BudgetPeriod;
-    status: BudgetStatus;
+    status?: BudgetStatus;
     startDate: Date;
     endDate: Date;
-    alertThreshold: number;
-  }): Budget {
-    const id = (this.idCounter++).toString();
-    const newBudget: Budget = {
-      ...budgetData,
-      id,
-      createdAt: new Date(),
+    alertThreshold?: number;
+  }): Promise<Budget> {
+    const budget = await this.prisma.budget.create({
+      data: {
+        userId: budgetData.userId,
+        categoryId: budgetData.categoryId,
+        limitAmount: budgetData.limitAmount,
+        limitCurrency: budgetData.limitCurrency || 'USD',
+        spentAmount: budgetData.spentAmount || 0,
+        period: budgetData.period as any,
+        status: (budgetData.status || BudgetStatus.CREATED) as any,
+        startDate: budgetData.startDate,
+        endDate: budgetData.endDate,
+        alertThreshold: budgetData.alertThreshold || 0.8,
+      },
+    });
+
+    return {
+      id: budget.id,
+      userId: budget.userId,
+      categoryId: budget.categoryId,
+      limitAmount: Number(budget.limitAmount),
+      limitCurrency: budget.limitCurrency,
+      spentAmount: Number(budget.spentAmount),
+      period: budget.period as BudgetPeriod,
+      status: budget.status as BudgetStatus,
+      startDate: budget.startDate,
+      endDate: budget.endDate,
+      alertThreshold: Number(budget.alertThreshold),
+      createdAt: budget.createdAt,
     };
-    this.budgets.set(id, newBudget);
-    return newBudget;
   }
 
-  update(id: string, budgetData: Partial<Budget>): Budget | undefined {
-    const budget = this.budgets.get(id);
-    if (!budget) return undefined;
+  async update(
+    id: string,
+    budgetData: Partial<Budget>,
+  ): Promise<Budget | null> {
+    try {
+      const budget = await this.prisma.budget.update({
+        where: { id },
+        data: {
+          ...(budgetData.categoryId && { categoryId: budgetData.categoryId }),
+          ...(budgetData.limitAmount && {
+            limitAmount: budgetData.limitAmount,
+          }),
+          ...(budgetData.limitCurrency && {
+            limitCurrency: budgetData.limitCurrency,
+          }),
+          ...(budgetData.spentAmount !== undefined && {
+            spentAmount: budgetData.spentAmount,
+          }),
+          ...(budgetData.period && { period: budgetData.period as any }),
+          ...(budgetData.status && { status: budgetData.status as any }),
+          ...(budgetData.startDate && { startDate: budgetData.startDate }),
+          ...(budgetData.endDate && { endDate: budgetData.endDate }),
+          ...(budgetData.alertThreshold !== undefined && {
+            alertThreshold: budgetData.alertThreshold,
+          }),
+        },
+      });
 
-    const updatedBudget = {
-      ...budget,
-      ...budgetData,
-    };
-    this.budgets.set(id, updatedBudget);
-    return updatedBudget;
+      return {
+        id: budget.id,
+        userId: budget.userId,
+        categoryId: budget.categoryId,
+        limitAmount: Number(budget.limitAmount),
+        limitCurrency: budget.limitCurrency,
+        spentAmount: Number(budget.spentAmount),
+        period: budget.period as BudgetPeriod,
+        status: budget.status as BudgetStatus,
+        startDate: budget.startDate,
+        endDate: budget.endDate,
+        alertThreshold: Number(budget.alertThreshold),
+        createdAt: budget.createdAt,
+      };
+    } catch (error) {
+      return null;
+    }
   }
 
-  updateSpent(id: string, spentAmount: number): Budget | undefined {
+  async updateSpent(id: string, spentAmount: number): Promise<Budget | null> {
     return this.update(id, { spentAmount });
   }
 
-  delete(id: string): boolean {
-    return this.budgets.delete(id);
+  async delete(id: string): Promise<boolean> {
+    try {
+      await this.prisma.budget.delete({
+        where: { id },
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

@@ -8,31 +8,34 @@ import { BudgetStatus } from '../../domain/enums/budget-status.enum';
 export class BudgetService {
   constructor(private readonly budgetRepository: BudgetRepository) {}
 
-  getAllBudgets(): Budget[] {
+  async getAllBudgets(): Promise<Budget[]> {
     return this.budgetRepository.findAll();
   }
 
-  getBudgetById(id: string): Budget {
-    const budget = this.budgetRepository.findById(id);
+  async getBudgetById(id: string): Promise<Budget> {
+    const budget = await this.budgetRepository.findById(id);
     if (!budget) {
       throw new Error('Budget not found');
     }
     return budget;
   }
 
-  getBudgetsByUserId(userId: string): Budget[] {
+  async getBudgetsByUserId(userId: string): Promise<Budget[]> {
     return this.budgetRepository.findByUserId(userId);
   }
 
-  getBudgetsByCategoryId(categoryId: string): Budget[] {
+  async getBudgetsByCategoryId(categoryId: string): Promise<Budget[]> {
     return this.budgetRepository.findByCategoryId(categoryId);
   }
 
-  getBudgetsByStatus(userId: string, status: BudgetStatus): Budget[] {
+  async getBudgetsByStatus(
+    userId: string,
+    status: BudgetStatus,
+  ): Promise<Budget[]> {
     return this.budgetRepository.findByStatus(userId, status);
   }
 
-  createBudget(
+  async createBudget(
     userId: string,
     categoryId: string,
     limitAmount: number,
@@ -41,7 +44,7 @@ export class BudgetService {
     startDate: Date,
     endDate: Date,
     alertThreshold: number = 80,
-  ): Budget {
+  ): Promise<Budget> {
     return this.budgetRepository.create({
       userId,
       categoryId,
@@ -56,32 +59,32 @@ export class BudgetService {
     });
   }
 
-  updateBudget(id: string, updateData: Partial<Budget>): Budget {
-    const budget = this.budgetRepository.update(id, updateData);
+  async updateBudget(id: string, updateData: Partial<Budget>): Promise<Budget> {
+    const budget = await this.budgetRepository.update(id, updateData);
     if (!budget) {
       throw new Error('Budget not found');
     }
     return budget;
   }
 
-  deleteBudget(id: string): void {
-    const deleted = this.budgetRepository.delete(id);
+  async deleteBudget(id: string): Promise<void> {
+    const deleted = await this.budgetRepository.delete(id);
     if (!deleted) {
       throw new Error('Budget not found');
     }
   }
 
-  checkBudget(
+  async checkBudget(
     userId: string,
     categoryId: string,
     transactionAmount: number,
-  ): {
+  ): Promise<{
     budget: Budget | null;
     isExceeded: boolean;
     shouldAlert: boolean;
     message: string;
-  } {
-    const budget = this.budgetRepository.findActiveByCategory(
+  }> {
+    const budget = await this.budgetRepository.findActiveByCategory(
       userId,
       categoryId,
     );
@@ -96,7 +99,7 @@ export class BudgetService {
     }
 
     const newSpentAmount = budget.spentAmount + transactionAmount;
-    const updatedBudget = this.budgetRepository.updateSpent(
+    const updatedBudget = await this.budgetRepository.updateSpent(
       budget.id,
       newSpentAmount,
     );
@@ -125,7 +128,7 @@ export class BudgetService {
     }
 
     if (newStatus !== budget.status) {
-      this.budgetRepository.update(budget.id, { status: newStatus });
+      await this.budgetRepository.update(budget.id, { status: newStatus });
     }
 
     let message = 'Budget is OK';
@@ -143,14 +146,14 @@ export class BudgetService {
     };
   }
 
-  getBudgetStats(budgetId: string): {
+  async getBudgetStats(budgetId: string): Promise<{
     limitAmount: number;
     spentAmount: number;
     remainingAmount: number;
     usagePercentage: number;
     status: BudgetStatus;
-  } {
-    const budget = this.budgetRepository.findById(budgetId);
+  }> {
+    const budget = await this.budgetRepository.findById(budgetId);
     if (!budget) {
       throw new Error('Budget not found');
     }
