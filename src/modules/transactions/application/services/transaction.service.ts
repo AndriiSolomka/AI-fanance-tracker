@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionRepository } from '../repositories/transaction.repository';
-import { Transaction } from '../../domain/entities/transaction.entity';
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { Transaction, TransactionType } from '@prisma/client';
 
 @Injectable()
 export class TransactionService {
   constructor(private readonly transactionRepository: TransactionRepository) {}
 
-  async getAllTransactions(): Promise<Transaction[]> {
-    return this.transactionRepository.findAll();
-  }
+  // async getAllTransactions(): Promise<Transaction[]> {
+  //   // return await this.transactionRepository.findAll();
+  // }
 
   async getTransactionById(id: string): Promise<Transaction> {
     const transaction = await this.transactionRepository.findById(id);
@@ -91,7 +90,7 @@ export class TransactionService {
       userId,
       TransactionType.INCOME,
     );
-    return transactions.reduce((sum, tx) => sum + tx.amount, 0);
+    return transactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
   }
 
   async calculateTotalExpenses(userId: string): Promise<number> {
@@ -99,7 +98,7 @@ export class TransactionService {
       userId,
       TransactionType.EXPENSE,
     );
-    return transactions.reduce((sum, tx) => sum + tx.amount, 0);
+    return transactions.reduce((sum, tx) => sum + Number(tx.amount), 0);
   }
 
   async calculateBalance(userId: string): Promise<number> {
