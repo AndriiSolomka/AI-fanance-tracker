@@ -8,5 +8,5 @@ export class CreateBudgetDto {
   period: BudgetPeriod;
   startDate: string; // ISO date string
   endDate: string; // ISO date string
-  alertThreshold?: number; // по умолчанию 80
+  alertThreshold?: number;
 }
