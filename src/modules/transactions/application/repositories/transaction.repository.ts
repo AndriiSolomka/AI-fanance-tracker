@@ -145,15 +145,18 @@ export class TransactionRepository {
     description?: string;
     date: Date;
   }): Promise<Transaction> {
+    const { userId, categoryId, type, amount, currency, description, date } =
+      txData;
+
     const tx = await this.prisma.transaction.create({
       data: {
-        userId: txData.userId,
-        categoryId: txData.categoryId,
-        type: txData.type,
-        amount: txData.amount,
-        currency: txData.currency || 'USD',
-        description: txData.description,
-        date: txData.date,
+        userId,
+        categoryId,
+        type,
+        amount,
+        currency: currency || 'USD',
+        description,
+        date,
       },
     });
 

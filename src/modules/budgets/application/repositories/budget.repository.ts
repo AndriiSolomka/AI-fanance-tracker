@@ -157,18 +157,31 @@ export class BudgetRepository {
     endDate: Date;
     alertThreshold?: number;
   }): Promise<Budget> {
+    const {
+      userId,
+      categoryId,
+      limitAmount,
+      limitCurrency,
+      spentAmount,
+      period,
+      status,
+      startDate,
+      endDate,
+      alertThreshold,
+    } = budgetData;
+
     const budget = await this.prisma.budget.create({
       data: {
-        userId: budgetData.userId,
-        categoryId: budgetData.categoryId,
-        limitAmount: budgetData.limitAmount,
-        limitCurrency: budgetData.limitCurrency || 'USD',
-        spentAmount: budgetData.spentAmount || 0,
-        period: budgetData.period as any,
-        status: (budgetData.status || BudgetStatus.CREATED) as any,
-        startDate: budgetData.startDate,
-        endDate: budgetData.endDate,
-        alertThreshold: budgetData.alertThreshold || 0.8,
+        userId,
+        categoryId,
+        limitAmount,
+        limitCurrency: limitCurrency || 'USD',
+        spentAmount: spentAmount || 0,
+        period: period as any,
+        status: (status || BudgetStatus.CREATED) as any,
+        startDate,
+        endDate,
+        alertThreshold: alertThreshold || 0.8,
       },
     });
 

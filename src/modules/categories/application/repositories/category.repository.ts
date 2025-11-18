@@ -84,14 +84,16 @@ export class CategoryRepository {
     icon: string;
     isDefault?: boolean;
   }): Promise<Category> {
+    const { userId, name, type, color, icon, isDefault } = categoryData;
+
     const cat = await this.prisma.category.create({
       data: {
-        userId: categoryData.userId,
-        name: categoryData.name,
-        type: categoryData.type as any,
-        color: categoryData.color,
-        icon: categoryData.icon,
-        isDefault: categoryData.isDefault ?? false,
+        userId,
+        name,
+        type: type as any,
+        color,
+        icon,
+        isDefault: isDefault ?? false,
       },
     });
 
