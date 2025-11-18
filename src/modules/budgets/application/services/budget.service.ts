@@ -72,8 +72,7 @@ export class BudgetService {
   }
 
   async deleteBudget(id: string): Promise<void> {
-    const deleted = await this.budgetRepository.delete(id);
-    if (!deleted) {
+    if (!(await this.budgetRepository.delete(id))) {
       throw new Error('Budget not found');
     }
   }
