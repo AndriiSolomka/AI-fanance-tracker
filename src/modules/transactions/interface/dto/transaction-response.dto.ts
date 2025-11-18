@@ -1,4 +1,4 @@
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { TransactionType } from '@prisma/client';
 
 export class TransactionResponseDto {
   id: string;
