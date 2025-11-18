@@ -1,4 +1,4 @@
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
+import { BudgetPeriod } from '@prisma/client';
 
 export class CreateBudgetDto {
   userId: string;
