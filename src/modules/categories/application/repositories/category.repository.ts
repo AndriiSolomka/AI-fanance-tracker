@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
-import { CategoryType } from '../../domain/enums/category-type.enum';
-import { Category } from '@prisma/client';
+import { Category, CategoryType } from '@prisma/client';
 
 @Injectable()
 export class CategoryRepository {
@@ -13,7 +12,7 @@ export class CategoryRepository {
       id: cat.id,
       userId: cat.userId,
       name: cat.name,
-      type: cat.type as CategoryType,
+      type: cat.type,
       color: cat.color,
       icon: cat.icon,
       isDefault: cat.isDefault,
@@ -38,7 +37,7 @@ export class CategoryRepository {
       id: cat.id,
       userId: cat.userId,
       name: cat.name,
-      type: cat.type as CategoryType,
+      type: cat.type,
       color: cat.color,
       icon: cat.icon,
       isDefault: cat.isDefault,
@@ -55,7 +54,7 @@ export class CategoryRepository {
       id: cat.id,
       userId: cat.userId,
       name: cat.name,
-      type: cat.type as CategoryType,
+      type: cat.type,
       color: cat.color,
       icon: cat.icon,
       isDefault: cat.isDefault,
@@ -86,7 +85,7 @@ export class CategoryRepository {
       id: cat.id,
       userId: cat.userId,
       name: cat.name,
-      type: cat.type as CategoryType,
+      type: cat.type,
       color: cat.color,
       icon: cat.icon,
       isDefault: cat.isDefault,
@@ -116,7 +115,7 @@ export class CategoryRepository {
         id: cat.id,
         userId: cat.userId,
         name: cat.name,
-        type: cat.type as CategoryType,
+        type: cat.type,
         color: cat.color,
         icon: cat.icon,
         isDefault: cat.isDefault,
