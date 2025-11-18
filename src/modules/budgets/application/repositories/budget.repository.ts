@@ -83,47 +83,37 @@ export class BudgetRepository {
   async update(
     id: string,
     budgetData: Prisma.BudgetUncheckedUpdateInput,
-  ): Promise<Budget | null> {
-    try {
-      return await this.prisma.budget.update({
-        where: { id },
-        data: {
-          ...(budgetData.categoryId && { categoryId: budgetData.categoryId }),
-          ...(budgetData.limitAmount && {
-            limitAmount: budgetData.limitAmount,
-          }),
-          ...(budgetData.limitCurrency && {
-            limitCurrency: budgetData.limitCurrency,
-          }),
-          ...(budgetData.spentAmount !== undefined && {
-            spentAmount: budgetData.spentAmount,
-          }),
-          ...(budgetData.period && { period: budgetData.period }),
-          ...(budgetData.status && { status: budgetData.status }),
-          ...(budgetData.startDate && { startDate: budgetData.startDate }),
-          ...(budgetData.endDate && { endDate: budgetData.endDate }),
-          ...(budgetData.alertThreshold !== undefined && {
-            alertThreshold: budgetData.alertThreshold,
-          }),
-        },
-      });
-    } catch {
-      return null;
-    }
+  ): Promise<Budget> {
+    return this.prisma.budget.update({
+      where: { id },
+      data: {
+        ...(budgetData.categoryId && { categoryId: budgetData.categoryId }),
+        ...(budgetData.limitAmount && { limitAmount: budgetData.limitAmount }),
+        ...(budgetData.limitCurrency && {
+          limitCurrency: budgetData.limitCurrency,
+        }),
+        ...(budgetData.spentAmount !== undefined && {
+          spentAmount: budgetData.spentAmount,
+        }),
+        ...(budgetData.period && { period: budgetData.period }),
+        ...(budgetData.status && { status: budgetData.status }),
+        ...(budgetData.startDate && { startDate: budgetData.startDate }),
+        ...(budgetData.endDate && { endDate: budgetData.endDate }),
+        ...(budgetData.alertThreshold !== undefined && {
+          alertThreshold: budgetData.alertThreshold,
+        }),
+      },
+    });
   }
 
-  async updateSpent(id: string, spentAmount: number): Promise<Budget | null> {
+  async updateSpent(id: string, spentAmount: number): Promise<Budget> {
     return this.update(id, { spentAmount });
   }
 
   async delete(id: string): Promise<boolean> {
-    try {
-      await this.prisma.budget.delete({
-        where: { id },
-      });
-      return true;
-    } catch {
-      return false;
-    }
+    await this.prisma.budget.delete({
+      where: { id },
+    });
+    return true;
   }
 }
