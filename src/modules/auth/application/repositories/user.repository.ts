@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
-import { User } from '../../domain/entities/user.entity';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class UserRepository {
@@ -87,45 +87,37 @@ export class UserRepository {
     };
   }
 
-  async update(id: string, userData: Partial<User>): Promise<User | null> {
-    try {
-      const user = await this.prisma.user.update({
-        where: { id },
-        data: {
-          ...(userData.email && { email: userData.email }),
-          ...(userData.passwordHash && { passwordHash: userData.passwordHash }),
-          ...(userData.firstName && { firstName: userData.firstName }),
-          ...(userData.lastName && { lastName: userData.lastName }),
-          ...(userData.isEmailVerified !== undefined && {
-            isEmailVerified: userData.isEmailVerified,
-          }),
-          updatedAt: new Date(),
-        },
-      });
+  async update(id: string, userData: Partial<User>): Promise<User> {
+    const user = await this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(userData.email && { email: userData.email }),
+        ...(userData.passwordHash && { passwordHash: userData.passwordHash }),
+        ...(userData.firstName && { firstName: userData.firstName }),
+        ...(userData.lastName && { lastName: userData.lastName }),
+        ...(userData.isEmailVerified !== undefined && {
+          isEmailVerified: userData.isEmailVerified,
+        }),
+        updatedAt: new Date(),
+      },
+    });
 
-      return {
-        id: user.id,
-        email: user.email,
-        passwordHash: user.passwordHash,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isEmailVerified: user.isEmailVerified,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      };
-    } catch (error) {
-      return null;
-    }
+    return {
+      id: user.id,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      isEmailVerified: user.isEmailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 
   async delete(id: string): Promise<boolean> {
-    try {
-      await this.prisma.user.delete({
-        where: { id },
-      });
-      return true;
-    } catch (error) {
-      return false;
-    }
+    await this.prisma.user.delete({
+      where: { id },
+    });
+    return true;
   }
 }
