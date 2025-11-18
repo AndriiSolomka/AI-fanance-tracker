@@ -10,7 +10,7 @@ import {
 import { CategoryService } from '../../application/services/category.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
-import { CategoryType } from '../../domain/enums/category-type.enum';
+import { CategoryType } from '@prisma/client';
 
 @Controller('categories')
 export class CategoryController {
