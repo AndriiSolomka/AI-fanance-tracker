@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryRepository } from '../repositories/category.repository';
 import { CategoryType } from '../../domain/enums/category-type.enum';
-import { Category } from '@prisma/client';
+import { Category } from '../../domain/entities/category.entity';
 
 @Injectable()
 export class CategoryService {

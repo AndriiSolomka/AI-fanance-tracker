@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
 import { CategoryType } from '../../domain/enums/category-type.enum';
-import { Category } from '@prisma/client';
+import { Category } from '../../domain/entities/category.entity';
 
 @Injectable()
 export class CategoryRepository {
@@ -22,9 +22,22 @@ export class CategoryRepository {
   }
 
   async findById(id: string): Promise<Category | null> {
-    return await this.prisma.category.findUnique({
+    const cat = await this.prisma.category.findUnique({
       where: { id },
     });
+
+    if (!cat) return null;
+
+    return {
+      id: cat.id,
+      userId: cat.userId,
+      name: cat.name,
+      type: cat.type as CategoryType,
+      color: cat.color,
+      icon: cat.icon,
+      isDefault: cat.isDefault,
+      createdAt: cat.createdAt,
+    };
   }
 
   async findByUserId(userId: string): Promise<Category[]> {
@@ -122,7 +135,7 @@ export class CategoryRepository {
         isDefault: cat.isDefault,
         createdAt: cat.createdAt,
       };
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -133,7 +146,7 @@ export class CategoryRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
