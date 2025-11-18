@@ -10,7 +10,8 @@ import {
 import { TransactionService } from '../../application/services/transaction.service';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { UpdateTransactionDto } from '../dto/update-transaction.dto';
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { TransactionType } from '@prisma/client';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Controller('transactions')
 export class TransactionController {
@@ -18,7 +19,7 @@ export class TransactionController {
 
   @Get()
   getAllTransactions() {
-    return this.transactionService.getAllTransactions();
+    // return this.transactionService.getAllTransactions();
   }
 
   @Get('user/:userId')
@@ -74,6 +75,7 @@ export class TransactionController {
     return this.transactionService.updateTransaction(id, {
       ...dto,
       date: dto.date ? new Date(dto.date) : undefined,
+      amount: dto.amount !== undefined ? new Decimal(dto.amount) : undefined,
     });
   }
 
