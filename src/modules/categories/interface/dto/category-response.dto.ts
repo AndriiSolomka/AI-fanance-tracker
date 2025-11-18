@@ -1,4 +1,4 @@
-import { CategoryType } from '../../domain/enums/category-type.enum';
+import { CategoryType } from '@prisma/client';
 
 export class CategoryResponseDto {
   id: string;
