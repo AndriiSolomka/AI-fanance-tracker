@@ -7,17 +7,7 @@ export class CategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany();
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
+    return await this.prisma.category.findMany();
   }
 
   async findById(id: string): Promise<Category | null> {
@@ -27,39 +17,17 @@ export class CategoryRepository {
   }
 
   async findByUserId(userId: string): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany({
+    return await this.prisma.category.findMany({
       where: {
         OR: [{ userId }, { isDefault: true }],
       },
     });
-
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
   }
 
   async findByType(type: CategoryType): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany({
+    return await this.prisma.category.findMany({
       where: { type: type },
     });
-
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
   }
 
   async create(categoryData: {
@@ -70,7 +38,7 @@ export class CategoryRepository {
     icon: string;
     isDefault?: boolean;
   }): Promise<Category> {
-    const cat = await this.prisma.category.create({
+    return await this.prisma.category.create({
       data: {
         userId: categoryData.userId,
         name: categoryData.name,
@@ -80,50 +48,24 @@ export class CategoryRepository {
         isDefault: categoryData.isDefault ?? false,
       },
     });
-
-    return {
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    };
   }
 
   async update(
     id: string,
     categoryData: Partial<Category>,
   ): Promise<Category | null> {
-    try {
-      const cat = await this.prisma.category.update({
-        where: { id },
-        data: {
-          ...(categoryData.name && { name: categoryData.name }),
-          ...(categoryData.type && { type: categoryData.type }),
-          ...(categoryData.color && { color: categoryData.color }),
-          ...(categoryData.icon && { icon: categoryData.icon }),
-          ...(categoryData.isDefault !== undefined && {
-            isDefault: categoryData.isDefault,
-          }),
-        },
-      });
-
-      return {
-        id: cat.id,
-        userId: cat.userId,
-        name: cat.name,
-        type: cat.type,
-        color: cat.color,
-        icon: cat.icon,
-        isDefault: cat.isDefault,
-        createdAt: cat.createdAt,
-      };
-    } catch {
-      return null;
-    }
+    return await this.prisma.category.update({
+      where: { id },
+      data: {
+        ...(categoryData.name && { name: categoryData.name }),
+        ...(categoryData.type && { type: categoryData.type }),
+        ...(categoryData.color && { color: categoryData.color }),
+        ...(categoryData.icon && { icon: categoryData.icon }),
+        ...(categoryData.isDefault !== undefined && {
+          isDefault: categoryData.isDefault,
+        }),
+      },
+    });
   }
 
   async delete(id: string): Promise<boolean> {
