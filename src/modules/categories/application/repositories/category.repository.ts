@@ -48,7 +48,7 @@ export class CategoryRepository {
 
   async findByType(type: CategoryType): Promise<Category[]> {
     const categories = await this.prisma.category.findMany({
-      where: { type: type as any },
+      where: { type: type },
     });
 
     return categories.map((cat) => ({
@@ -75,7 +75,7 @@ export class CategoryRepository {
       data: {
         userId: categoryData.userId,
         name: categoryData.name,
-        type: categoryData.type as any,
+        type: categoryData.type,
         color: categoryData.color,
         icon: categoryData.icon,
         isDefault: categoryData.isDefault ?? false,
@@ -103,7 +103,7 @@ export class CategoryRepository {
         where: { id },
         data: {
           ...(categoryData.name && { name: categoryData.name }),
-          ...(categoryData.type && { type: categoryData.type as any }),
+          ...(categoryData.type && { type: categoryData.type }),
           ...(categoryData.color && { color: categoryData.color }),
           ...(categoryData.icon && { icon: categoryData.icon }),
           ...(categoryData.isDefault !== undefined && {
@@ -122,7 +122,7 @@ export class CategoryRepository {
         isDefault: cat.isDefault,
         createdAt: cat.createdAt,
       };
-    } catch (error) {
+    } catch {
       return null;
     }
   }
@@ -133,7 +133,7 @@ export class CategoryRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
