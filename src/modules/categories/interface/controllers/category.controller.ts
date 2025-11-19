@@ -10,7 +10,7 @@ import {
 import { CategoryService } from '../../application/services/category.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
-import { CategoryType } from '../../domain/enums/category-type.enum';
+import { CategoryType } from '@prisma/client';
 
 @Controller('categories')
 export class CategoryController {
@@ -38,13 +38,8 @@ export class CategoryController {
 
   @Post()
   createCategory(@Body() dto: CreateCategoryDto) {
-    return this.categoryService.createCategory(
-      dto.userId,
-      dto.name,
-      dto.type,
-      dto.color,
-      dto.icon,
-    );
+    const { userId, name, type, color, icon } = dto;
+    return this.categoryService.createCategory(userId, name, type, color, icon);
   }
 
   @Put(':id')
@@ -53,8 +48,8 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  deleteCategory(@Param('id') id: string) {
-    this.categoryService.deleteCategory(id);
+  async deleteCategory(@Param('id') id: string) {
+    await this.categoryService.deleteCategory(id);
     return { message: 'Category deleted successfully' };
   }
 }

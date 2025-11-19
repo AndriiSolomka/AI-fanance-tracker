@@ -1,24 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../database/prisma.service';
-import { CategoryType } from '../../domain/enums/category-type.enum';
-import { Category } from '@prisma/client';
+import { Category, CategoryType } from '@prisma/client';
 
 @Injectable()
 export class CategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany();
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type as CategoryType,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
+    return await this.prisma.category.findMany();
   }
 
   async findById(id: string): Promise<Category | null> {
@@ -28,39 +17,17 @@ export class CategoryRepository {
   }
 
   async findByUserId(userId: string): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany({
+    return await this.prisma.category.findMany({
       where: {
         OR: [{ userId }, { isDefault: true }],
       },
     });
-
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type as CategoryType,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
   }
 
   async findByType(type: CategoryType): Promise<Category[]> {
-    const categories = await this.prisma.category.findMany({
-      where: { type: type as any },
+    return await this.prisma.category.findMany({
+      where: { type: type },
     });
-
-    return categories.map((cat) => ({
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type as CategoryType,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    }));
   }
 
   async create(categoryData: {
@@ -71,60 +38,34 @@ export class CategoryRepository {
     icon: string;
     isDefault?: boolean;
   }): Promise<Category> {
-    const cat = await this.prisma.category.create({
+    return await this.prisma.category.create({
       data: {
         userId: categoryData.userId,
         name: categoryData.name,
-        type: categoryData.type as any,
+        type: categoryData.type,
         color: categoryData.color,
         icon: categoryData.icon,
         isDefault: categoryData.isDefault ?? false,
       },
     });
-
-    return {
-      id: cat.id,
-      userId: cat.userId,
-      name: cat.name,
-      type: cat.type as CategoryType,
-      color: cat.color,
-      icon: cat.icon,
-      isDefault: cat.isDefault,
-      createdAt: cat.createdAt,
-    };
   }
 
   async update(
     id: string,
     categoryData: Partial<Category>,
   ): Promise<Category | null> {
-    try {
-      const cat = await this.prisma.category.update({
-        where: { id },
-        data: {
-          ...(categoryData.name && { name: categoryData.name }),
-          ...(categoryData.type && { type: categoryData.type as any }),
-          ...(categoryData.color && { color: categoryData.color }),
-          ...(categoryData.icon && { icon: categoryData.icon }),
-          ...(categoryData.isDefault !== undefined && {
-            isDefault: categoryData.isDefault,
-          }),
-        },
-      });
-
-      return {
-        id: cat.id,
-        userId: cat.userId,
-        name: cat.name,
-        type: cat.type as CategoryType,
-        color: cat.color,
-        icon: cat.icon,
-        isDefault: cat.isDefault,
-        createdAt: cat.createdAt,
-      };
-    } catch (error) {
-      return null;
-    }
+    return await this.prisma.category.update({
+      where: { id },
+      data: {
+        ...(categoryData.name && { name: categoryData.name }),
+        ...(categoryData.type && { type: categoryData.type }),
+        ...(categoryData.color && { color: categoryData.color }),
+        ...(categoryData.icon && { icon: categoryData.icon }),
+        ...(categoryData.isDefault !== undefined && {
+          isDefault: categoryData.isDefault,
+        }),
+      },
+    });
   }
 
   async delete(id: string): Promise<boolean> {
@@ -133,7 +74,7 @@ export class CategoryRepository {
         where: { id },
       });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

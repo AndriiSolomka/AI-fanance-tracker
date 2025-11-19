@@ -1,4 +1,4 @@
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
+import { BudgetPeriod } from '@prisma/client';
 
 export class CreateBudgetDto {
   userId: string;
@@ -8,5 +8,5 @@ export class CreateBudgetDto {
   period: BudgetPeriod;
   startDate: string; // ISO date string
   endDate: string; // ISO date string
-  alertThreshold?: number; // по умолчанию 80
+  alertThreshold?: number;
 }

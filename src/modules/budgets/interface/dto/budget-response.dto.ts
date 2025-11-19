@@ -1,5 +1,5 @@
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
-import { BudgetStatus } from '../../domain/enums/budget-status.enum';
+import { BudgetPeriod } from '@prisma/client';
+import { BudgetStatus } from '@prisma/client';
 
 export class BudgetResponseDto {
   id: string;
