@@ -38,16 +38,13 @@ export class UserRepository {
     lastName: string;
     isEmailVerified?: boolean;
   }): Promise<User> {
-    const { email, passwordHash, firstName, lastName, isEmailVerified } =
-      userData;
-
     return await this.prisma.user.create({
       data: {
-        email,
-        passwordHash,
-        firstName,
-        lastName,
-        isEmailVerified: isEmailVerified ?? false,
+        email: userData.email,
+        passwordHash: userData.passwordHash,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        isEmailVerified: userData.isEmailVerified ?? false,
       },
     });
   }
