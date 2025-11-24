@@ -50,10 +50,7 @@ export class CategoryRepository {
     });
   }
 
-  async update(
-    id: string,
-    categoryData: Partial<Category>,
-  ): Promise<Category> {
+  async update(id: string, categoryData: Partial<Category>): Promise<Category> {
     return await this.prisma.category.update({
       where: { id },
       data: {
