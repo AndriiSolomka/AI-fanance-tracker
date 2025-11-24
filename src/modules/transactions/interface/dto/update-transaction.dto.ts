@@ -7,7 +7,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { TransactionType } from '@prisma/client';
 
 export class UpdateTransactionDto {
   @IsOptional()

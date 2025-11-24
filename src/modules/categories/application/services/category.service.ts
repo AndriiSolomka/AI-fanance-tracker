@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryRepository } from '../repositories/category.repository';
-import { CategoryType } from '../../domain/enums/category-type.enum';
-import { Category } from '../../domain/entities/category.entity';
+import { Category, CategoryType } from '@prisma/client';
 
 @Injectable()
 export class CategoryService {
@@ -50,13 +49,7 @@ export class CategoryService {
     id: string,
     updateData: Partial<Category>,
   ): Promise<Category> {
-    const category = await this.categoryRepository.update(id, updateData);
-
-    if (!category) {
-      throw new Error('Category not found');
-    }
-
-    return category;
+    return await this.categoryRepository.update(id, updateData);
   }
 
   async deleteCategory(id: string): Promise<void> {

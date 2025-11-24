@@ -7,7 +7,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { TransactionType } from '../../domain/enums/transaction-type.enum';
+import { TransactionType } from '@prisma/client';
 
 export class CreateTransactionDto {
   @IsUUID('4', { message: 'User ID must be a valid UUID' })

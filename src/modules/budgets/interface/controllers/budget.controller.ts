@@ -10,7 +10,7 @@ import {
 import { BudgetService } from '../../application/services/budget.service';
 import { CreateBudgetDto } from '../dto/create-budget.dto';
 import { UpdateBudgetDto } from '../dto/update-budget.dto';
-import { BudgetStatus } from '../../domain/enums/budget-status.enum';
+import { BudgetStatus } from '@prisma/client';
 
 @Controller('budgets')
 export class BudgetController {
@@ -65,17 +65,19 @@ export class BudgetController {
 
   @Put(':id')
   updateBudget(@Param('id') id: string, @Body() dto: UpdateBudgetDto) {
-    const updateData = {
+    const updateData: any = {
       ...dto,
       startDate: dto.startDate ? new Date(dto.startDate) : undefined,
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return this.budgetService.updateBudget(id, updateData);
   }
 
   @Delete(':id')
-  deleteBudget(@Param('id') id: string) {
-    this.budgetService.deleteBudget(id);
+  async deleteBudget(@Param('id') id: string) {
+    await this.budgetService.deleteBudget(id);
     return { message: 'Budget deleted successfully' };
   }
 

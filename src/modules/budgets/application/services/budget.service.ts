@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BudgetRepository } from '../repositories/budget.repository';
-import { Budget } from '../../domain/entities/budget.entity';
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
-import { BudgetStatus } from '../../domain/enums/budget-status.enum';
+import { Budget, BudgetPeriod, BudgetStatus } from '@prisma/client';
 
 @Injectable()
 export class BudgetService {
@@ -45,6 +43,9 @@ export class BudgetService {
     endDate: Date,
     alertThreshold: number = 80,
   ): Promise<Budget> {
+    const normalizedAlert =
+      alertThreshold > 1 ? alertThreshold / 100 : alertThreshold;
+
     return this.budgetRepository.create({
       userId,
       categoryId,
@@ -55,11 +56,14 @@ export class BudgetService {
       status: BudgetStatus.CREATED,
       startDate,
       endDate,
-      alertThreshold,
+      alertThreshold: normalizedAlert,
     });
   }
 
-  async updateBudget(id: string, updateData: Partial<Budget>): Promise<Budget> {
+  async updateBudget(
+    id: string,
+    updateData: Partial<Omit<Budget, 'id' | 'createdAt'>>,
+  ): Promise<Budget> {
     const budget = await this.budgetRepository.update(id, updateData);
     if (!budget) {
       throw new Error('Budget not found');
@@ -68,8 +72,7 @@ export class BudgetService {
   }
 
   async deleteBudget(id: string): Promise<void> {
-    const deleted = await this.budgetRepository.delete(id);
-    if (!deleted) {
+    if (!(await this.budgetRepository.delete(id))) {
       throw new Error('Budget not found');
     }
   }
@@ -98,7 +101,8 @@ export class BudgetService {
       };
     }
 
-    const newSpentAmount = budget.spentAmount + transactionAmount;
+    const newSpentAmount = Number(budget.spentAmount) + transactionAmount;
+
     const updatedBudget = await this.budgetRepository.updateSpent(
       budget.id,
       newSpentAmount,
@@ -108,40 +112,43 @@ export class BudgetService {
       throw new Error('Failed to update budget');
     }
 
-    // Calculate usage percentage
+    const limit = Number(updatedBudget.limitAmount);
+
     const usagePercentage =
-      updatedBudget.limitAmount === 0
-        ? 0
-        : (updatedBudget.spentAmount / updatedBudget.limitAmount) * 100;
+      limit === 0 ? 0 : (Number(updatedBudget.spentAmount) / limit) * 100;
 
-    // Check if exceeded
-    const exceeded = updatedBudget.spentAmount > updatedBudget.limitAmount;
+    const alertThreshold = Number(updatedBudget.alertThreshold);
+    const isExceeded =
+      Number(updatedBudget.spentAmount) > Number(updatedBudget.limitAmount);
 
-    // Check if should alert
-    const alert = usagePercentage >= updatedBudget.alertThreshold;
+    const shouldAlert = usagePercentage >= alertThreshold * 100;
 
-    let newStatus = budget.status;
-    if (exceeded) {
+    let newStatus = updatedBudget.status;
+
+    if (isExceeded) {
       newStatus = BudgetStatus.EXCEEDED;
-    } else if (alert) {
+    } else if (shouldAlert) {
       newStatus = BudgetStatus.WARNING;
     }
 
-    if (newStatus !== budget.status) {
-      await this.budgetRepository.update(budget.id, { status: newStatus });
+    if (newStatus !== updatedBudget.status) {
+      await this.budgetRepository.update(updatedBudget.id, {
+        status: newStatus,
+      });
     }
 
     let message = 'Budget is OK';
-    if (exceeded) {
-      message = `Budget exceeded! Spent ${updatedBudget.spentAmount} of ${updatedBudget.limitAmount} ${updatedBudget.limitCurrency}`;
-    } else if (alert) {
+
+    if (isExceeded) {
+      message = `Budget exceeded! Spent ${Number(updatedBudget.spentAmount)} of ${Number(updatedBudget.limitAmount)} ${updatedBudget.limitCurrency}`;
+    } else if (shouldAlert) {
       message = `Budget warning! You've spent ${usagePercentage.toFixed(1)}% of your budget`;
     }
 
     return {
       budget: updatedBudget,
-      isExceeded: exceeded,
-      shouldAlert: alert,
+      isExceeded,
+      shouldAlert,
       message,
     };
   }
@@ -159,14 +166,14 @@ export class BudgetService {
     }
 
     const usagePercentage =
-      budget.limitAmount === 0
+      Number(budget.limitAmount) === 0
         ? 0
-        : (budget.spentAmount / budget.limitAmount) * 100;
+        : (Number(budget.spentAmount) / Number(budget.limitAmount)) * 100;
 
     return {
-      limitAmount: budget.limitAmount,
-      spentAmount: budget.spentAmount,
-      remainingAmount: budget.limitAmount - budget.spentAmount,
+      limitAmount: Number(budget.limitAmount),
+      spentAmount: Number(budget.spentAmount),
+      remainingAmount: Number(budget.limitAmount) - Number(budget.spentAmount),
       usagePercentage,
       status: budget.status,
     };

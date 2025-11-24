@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString, IsUUID } from 'class-validator';
-import { CategoryType } from '../../domain/enums/category-type.enum';
+import { CategoryType } from '@prisma/client';
 
 export class CreateCategoryDto {
   @IsUUID('4', { message: 'User ID must be a valid UUID' })

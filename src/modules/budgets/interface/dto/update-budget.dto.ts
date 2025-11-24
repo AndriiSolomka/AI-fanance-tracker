@@ -8,8 +8,8 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
-import { BudgetStatus } from '../../domain/enums/budget-status.enum';
+import { BudgetPeriod } from '@prisma/client';
+import { BudgetStatus } from '@prisma/client';
 
 export class UpdateBudgetDto {
   @IsOptional()
@@ -40,6 +40,6 @@ export class UpdateBudgetDto {
   @IsOptional()
   @IsNumber({}, { message: 'Alert threshold must be a number' })
   @Min(0, { message: 'Alert threshold must be at least 0' })
-  @Max(100, { message: 'Alert threshold must not exceed 100' })
+  @Max(1, { message: 'Alert threshold must not exceed 1' })
   alertThreshold?: number;
 }

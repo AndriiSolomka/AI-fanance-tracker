@@ -10,7 +10,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { BudgetPeriod } from '../../domain/enums/budget-period.enum';
+import { BudgetPeriod } from '@prisma/client';
 
 export class CreateBudgetDto {
   @IsUUID('4', { message: 'User ID must be a valid UUID' })
@@ -45,6 +45,6 @@ export class CreateBudgetDto {
   @IsOptional()
   @IsNumber({}, { message: 'Alert threshold must be a number' })
   @Min(0, { message: 'Alert threshold must be at least 0' })
-  @Max(100, { message: 'Alert threshold must not exceed 100' })
+  @Max(1, { message: 'Alert threshold must not exceed 1' })
   alertThreshold?: number;
 }
