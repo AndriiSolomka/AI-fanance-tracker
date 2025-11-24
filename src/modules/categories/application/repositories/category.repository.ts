@@ -53,7 +53,7 @@ export class CategoryRepository {
   async update(
     id: string,
     categoryData: Partial<Category>,
-  ): Promise<Category | null> {
+  ): Promise<Category> {
     return await this.prisma.category.update({
       where: { id },
       data: {

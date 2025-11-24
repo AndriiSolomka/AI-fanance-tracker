@@ -49,13 +49,7 @@ export class CategoryService {
     id: string,
     updateData: Partial<Category>,
   ): Promise<Category> {
-    const category = await this.categoryRepository.update(id, updateData);
-
-    if (!category) {
-      throw new Error('Category not found');
-    }
-
-    return category;
+    return await this.categoryRepository.update(id, updateData);
   }
 
   async deleteCategory(id: string): Promise<void> {
